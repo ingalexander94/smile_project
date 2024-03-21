@@ -1,22 +1,34 @@
-import { useContext, useEffect, useState } from "react";
+import { MouseEvent, useContext, useEffect, useState } from "react";
 import Pagination from "src/components/UI/Pagination";
 import { Operation, SystemFilter } from "src/interfaces";
 import { TemporaryContext } from "src/context";
 import { useAxios } from "src/hooks";
 import { OperationService } from "src/services";
 import filterBlackIcon from "src/assets/icons/filter-black.svg";
-import kilometresIcon from "src/assets/icons/kilometres.svg";
+import kilometres from "src/assets/icons/kilometres.svg";
+import hours from "src/assets/icons/time.svg";
 import styles from "./systemtable.module.css";
 import { formatCurrency } from "src/utilities";
 import { Link } from "react-router-dom";
 import { privateRoutes, temporaryRoutes } from "src/models";
+import EmptyList from "src/components/EmptyList";
 
-const SystemTable = () => {
+type Props = {
+  handleReset: (e: MouseEvent<HTMLButtonElement>) => void;
+};
+
+const SystemTable = ({ handleReset }: Props) => {
   const [operations, setOperations] = useState<Operation[]>([]);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [checkedAll, setCheckedAll] = useState<boolean>(true);
-  const { temporaryState, setSystems, activeSystem, activeAllSystem } =
-    useContext(TemporaryContext);
+  const [loading, setLoading] = useState<boolean>(true);
+  const {
+    temporaryState,
+    setSystems,
+    activeSystem,
+    activeAllSystem,
+    setShowEmpty,
+  } = useContext(TemporaryContext);
   const { callEndpoint } = useAxios();
   const queryParams = new URLSearchParams(location.search);
   const page = parseInt(queryParams.get("page") ?? "1") ?? 1;
@@ -41,6 +53,7 @@ const SystemTable = () => {
 
   const searchOperationByCode = async () => {
     if (temporaryState.teamActive) {
+      setLoading(true);
       const res = await callEndpoint(
         OperationService.searchByCode(
           temporaryState.search,
@@ -49,16 +62,24 @@ const SystemTable = () => {
       );
       if (res) {
         const { data } = res.data;
-        setOperations(data);
+        if (data.length) {
+          setOperations(data);
+          setShowEmpty(false);
+        } else {
+          setShowEmpty(true);
+        }
         setTotalPages(0);
       }
+      setLoading(false);
     }
   };
 
   const getOperations = async (
     currentPage: number = 1,
-    querySystem: string = "all"
+    querySystem: string = "all",
+    isSystem: boolean = false
   ) => {
+    setLoading(true);
     if (temporaryState.modelActive) {
       const res = await callEndpoint(
         OperationService.getOperationFilterByPage(
@@ -69,17 +90,33 @@ const SystemTable = () => {
         )
       );
       if (res) {
-        const { data } = res.data;
-        setOperations(data.operations);
-        setTotalPages(data.totalPages);
-        setSystems(data.systems);
-        setCheckedAll(data.checkAll);
+        const { data } = res.data;  
+        if (!isSystem || data.operations.length) {
+          setOperations(data.operations);
+          setTotalPages(data.totalPages);
+          setSystems(data.systems);
+          setCheckedAll(data.checkAll);
+          setShowEmpty(false);
+        } else {
+          if (isSystem) {
+            if (!data.operations.length) {
+              setShowEmpty(true);
+            } else {
+              setShowEmpty(false);
+              setOperations(data.operations);
+              setTotalPages(data.totalPages);
+              setSystems(data.systems);
+              setCheckedAll(data.checkAll);
+            }
+          }
+        }
       }
     } else {
       setOperations([]);
       setTotalPages(0);
       setSystems([]);
     }
+    setLoading(false);
   };
 
   const handleChangeAll = () => {
@@ -112,7 +149,7 @@ const SystemTable = () => {
       if (!checkedAll) {
         query = active.map(({ id_system }) => id_system).join(",");
       }
-      getOperations(page, query);
+      getOperations(page, query, true);
     }
   };
 
@@ -181,100 +218,119 @@ const SystemTable = () => {
         </div>
       )}
       <div className={styles.table_content}>
-        <section>
-          <h3>¡Este componente aún no tiene operaciones asignadas!</h3>
-          <p>
-            En esta pantalla encontrarás la estructura de todas las operaciones
-            agregadas al modelo OEM y el componente seleccionado. Ahora puedes
-            agregar tu primera operación desde la pestaña de la matriz de
-            operaciones.
-          </p>
-          <Link
-            className="btn_black"
-            to={`/${privateRoutes.PRIVATE}/${privateRoutes.TEMPORARY}/${temporaryRoutes.OPERATIONS}`}
-          >
-            Ir a Matriz de operaciones
-          </Link>
-        </section>
+        {!loading && (
+          <section>
+            <h3>¡Este componente aún no tiene operaciones asignadas!</h3>
+            <p>
+              En esta pantalla encontrarás la estructura de todas las
+              operaciones agregadas al modelo OEM y el componente seleccionado.
+              Ahora puedes agregar tu primera operación desde la pestaña de la
+              matriz de operaciones.
+            </p>
+            <Link
+              className="btn_black"
+              to={`/${privateRoutes.PRIVATE}/${privateRoutes.TEMPORARY}/${temporaryRoutes.OPERATIONS}`}
+            >
+              Ir a Matriz de operaciones
+            </Link>
+          </section>
+        )}
 
-        {operations.map((operation, index) => (
-          <div
-            key={index}
-            className={`animate__animated animate__fadeIn animate__faster ${styles.table_item}`}
-          >
-            <input type="checkbox" id={`system${index}`} />
-            <label htmlFor={`system${index}`}>
-              <ul>
-                <li>
-                  <img src={kilometresIcon} alt="Kilometers icon" />
-                  <strong>{operation.system}</strong>
-                </li>
-                <li>
-                  <strong>{operation.code}</strong>
-                </li>
-                <li>{operation.operation_description}</li>
+        {temporaryState.showEmpty && <EmptyList handleReset={handleReset} />}
 
-                <li>
-                  <strong>
-                    {operation.maintenance_type_name ?? "Sin especificar"}
-                  </strong>
-                </li>
-                <li className={styles.show}>
+        {!temporaryState.showEmpty &&
+          operations.map((operation, index) => (
+            <div
+              key={index}
+              className={`animate__animated animate__fadeIn animate__faster ${styles.table_item}`}
+            >
+              <input type="checkbox" id={`system${index}`} />
+              <label htmlFor={`system${index}`}>
+                <ul>
+                  <li>
+                    <figure>
+                      <img
+                        className={
+                          operation.operation_measure === 1 ? styles.time : ""
+                        }
+                        src={
+                          operation.operation_measure === 2 ? kilometres : hours
+                        }
+                        alt="time-icon"
+                      />
+                      {operation.operation_measure === 2 ? "Km." : "Hr."}
+                    </figure>
+                    <strong>{operation.system}</strong>
+                  </li>
+                  <li>
+                    <strong>{operation.code}</strong>
+                  </li>
+                  <li>{operation.operation_description}</li>
+
+                  <li>
+                    <strong>
+                      {operation.maintenance_type_name ?? "Sin especificar"}
+                    </strong>
+                  </li>
+                  <li className={styles.show}>
+                    <p>
+                      {operation.operation_total
+                        ? formatCurrency(operation.operation_total)
+                        : "Sin especificar"}
+                    </p>
+                    <strong>Ver</strong>
+                  </li>
+                </ul>
+              </label>
+              <div>
+                <div>
                   <p>
-                    {operation.operation_total
-                      ? formatCurrency(operation.operation_total)
+                    <span>Cód. técnico</span>
+                    {operation.technician_code ?? "Sin especificar"}
+                  </p>
+                  <p>
+                    <span>Modelo OEM</span>
+                    {operation.operation_models.length
+                      ? operation.operation_models
+                          .reduce(
+                            (acc, cur) => (acc += `${cur.model_code},`),
+                            ""
+                          )
+                          .slice(0, -1)
                       : "Sin especificar"}
                   </p>
-                  <strong>Ver</strong>
-                </li>
-              </ul>
-            </label>
-            <div>
-              <div>
-                <p>
-                  <span>Cód. técnico</span>
-                  {operation.technician_code ?? "Sin especificar"}
-                </p>
-                <p>
-                  <span>Modelo OEM</span>
-                  {operation.operation_models.length
-                    ? operation.operation_models
-                        .reduce((acc, cur) => (acc += `${cur.model_code},`), "")
-                        .slice(0, -1)
-                    : "Sin especificar"}
-                </p>
-              </div>
-              <div>
-                <p>
-                  <span>Duración</span>
-                  {operation.operation_duration_hours ? (
-                    <>
-                      <strong>
-                        {operation.operation_duration_minutes}
-                        (Min.)
-                      </strong>
-                      {operation.operation_duration_hours}(Hr.)
-                    </>
-                  ) : (
-                    "Sin especificar"
-                  )}
-                </p>
-                <p>
-                  <span>Intervalo</span>
-                  {operation.operation_hours ||
-                  operation.operation_kilometres ? (
-                    <>
-                      {operation.operation_kilometres ?? 0} km <br />{" "}
-                      {operation.operation_hours ?? 0} horas
-                    </>
-                  ) : (
-                    "Sin especificar"
-                  )}
-                </p>
+                </div>
+                <div>
+                  <p>
+                    <span>Duración</span>
+                    {operation.operation_duration_hours ? (
+                      <>
+                        <strong>
+                          {operation.operation_duration_minutes}
+                          (Min.)
+                        </strong>
+                        {operation.operation_duration_hours}(Hr.)
+                      </>
+                    ) : (
+                      "Sin especificar"
+                    )}
+                  </p>
+                  <p>
+                    <span>Intervalo</span>
+                    {operation.operation_hours ||
+                    operation.operation_kilometres ? (
+                      <>
+                        {operation.operation_kilometres ?? 0} km <br />{" "}
+                        {operation.operation_hours ?? 0} horas
+                      </>
+                    ) : (
+                      "Sin especificar"
+                    )}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
       {totalPages > 1 && <Pagination last_page={totalPages} />}
     </div>

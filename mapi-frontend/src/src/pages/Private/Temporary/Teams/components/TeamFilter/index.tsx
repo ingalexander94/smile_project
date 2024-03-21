@@ -8,7 +8,12 @@ import TeamItem from "./components/TeamItem";
 import { TeamService } from "src/services";
 import SaveTeam from "../SaveTeam";
 
-const TeamFilter = () => {
+
+type Props =  {
+  setLoading: (loading: boolean) => void;
+}
+
+const TeamFilter = ({ setLoading }: Props) => {
   const tagsRef = useRef<HTMLUListElement>(null);
   const isInitialized = useRef<boolean>(false);
   const [show, setShow] = useState<boolean>(false);
@@ -20,12 +25,14 @@ const TeamFilter = () => {
     if (!isInitialized.current) {
       isInitialized.current = true;
       const getTeams = async () => {
+        setLoading(true);
         const res = await callEndpoint(TeamService.getAll());
         const { data } = res?.data;
         setTeams(data);
         if (data.length) {
           setTeamActive(data[0]);
         }
+        setLoading(false)
       };
       getTeams();
     }

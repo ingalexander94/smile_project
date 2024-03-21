@@ -42,7 +42,7 @@ article.temporary div.operations_wrapper {
   min-height: calc(100% - 100px);
 }
 
-article.temporary div.operations_wrapper aside {
+article.temporary div.operations_wrapper > aside {
   display: none;
   width: 100%;
   grid-column-start: 1;
@@ -57,33 +57,33 @@ article.temporary div.operations_wrapper aside {
   justify-content: center;
 }
 
-article.temporary div.operations_wrapper aside h3 {
+article.temporary div.operations_wrapper > aside h3 {
   font-size: 24px;
   font-weight: 700;
   line-height: 26px;
 }
 
-article.temporary div.operations_wrapper aside p {
+article.temporary div.operations_wrapper > aside p {
   font-size: 14px;
   font-weight: 400;
   line-height: 16px;
 }
 
-article.temporary div.operations_wrapper aside img {
+article.temporary div.operations_wrapper > aside img {
   object-fit: contain;
 }
 
-article.temporary div.operations_wrapper aside button {
+article.temporary div.operations_wrapper > aside button {
   width: 200px;
   height: 50px;
 }
 
-article.temporary div.operations_wrapper aside button img {
+article.temporary div.operations_wrapper > aside button img {
   width: 20px;
   height: 20px;
 }
 
-article.temporary div.operations_wrapper aside:only-child {
+article.temporary div.operations_wrapper > aside:only-child {
   display: flex;
 }
 
@@ -97,7 +97,7 @@ article.temporary div.operations_wrapper > section {
     grid-template-columns: 320px 1fr;
   }
 
-  article.temporary div.operations_wrapper aside > img {
+  article.temporary div.operations_wrapper > aside > img {
     width: 450px;
   }
 }

@@ -2,30 +2,29 @@ import motorsIcon from "src/assets/icons/Motor.svg";
 import editIcon from "src/assets/icons/edit.svg";
 import deleteIcon from "src/assets/icons/delete.svg";
 import styles from "./listcontenttable.module.css";
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext, MouseEvent } from "react";
 import Pagination from "src/components/UI/Pagination";
 import AddTechnician from "../AddTechnician";
 import AlertDelete from "src/components/AlertDelete";
 import { useFetch } from "src/hooks";
 import { TechnicianService } from "src/services/technician.service";
-import {
-  Technician,
-  TechnicianResponse,
-} from "src/interfaces/technician.interface";
+import { Technician } from "src/interfaces/technician.interface";
 import { useSearchParams } from "react-router-dom";
-import { UIContext } from "src/context";
 import { TechnicianContext } from "src/context/technician/technician.context";
+import EmptyList from "src/components/EmptyList";
 
-const ListContentTable = () => {
+type Props = {
+  handleReset: (e: MouseEvent<HTMLButtonElement>) => void;
+};
+
+const ListContentTable = ({ handleReset }: Props) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalDelete, setModalDelete] = useState(false);
-  const [data, setData] = useState<TechnicianResponse | null>(null);
   const [editTechnician, setEditTechnician] = useState<number>(0);
   const { setTechnicians, technicianState } = useContext(TechnicianContext);
 
   const { callEndpoint } = useFetch();
 
-  const { uiState } = useContext(UIContext);
   const [searchParams, setSearchParams] = useSearchParams();
   const current_page = searchParams.get("page") ?? "1";
 
@@ -37,15 +36,8 @@ const ListContentTable = () => {
     ) {
       setSearchParams({ page: res?.data.last_page });
     }
-    setData(res?.data);
     setTechnicians(res.data.technician);
   };
-
-  useEffect(() => {
-    getTechnicians();
-
-    return () => {};
-  }, [current_page, uiState.refreshTechnicians]);
 
   const showModal = () => {
     setModalVisible(true);
@@ -76,55 +68,58 @@ const ListContentTable = () => {
         </ul>
       </div>
       <div className={styles.table_content}>
-        {technicianState.list_technician.map((item: Technician, i) => (
-          <div
-            key={i}
-            onClick={() => setEditTechnician(item.id_technician)}
-            className={styles.table_item}
-          >
-            <input type="checkbox" id={styles.system1} />
-            <label htmlFor={styles.system1}>
-              <ul>
-                <li>
-                  <img
-                    src={item.technician_icon ?? motorsIcon}
-                    alt="motors icon"
-                  />
-                  <strong>{item.technician_name}</strong>
-                </li>
-                <li>
-                  <strong>{item.technician_code}</strong>
-                </li>
-                <li>
-                  <p>{item.technician_description ?? "Sin definir"}</p>
-                </li>
-                <li>
-                  <p>{item.technician_education ?? "Sin definir"}</p>
-                </li>
-                <li>
-                  <strong>{formatPrice(item.technician_salary)}</strong>
-                </li>
-                <div className={styles.buttons}>
-                  <button onClick={showModal} className={styles.btn_edit}>
-                    <img src={editIcon} alt="edit icon" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      showDelete();
-                      setEditTechnician(item.id_technician);
-                    }}
-                  >
-                    <img src={deleteIcon} alt="delete icon" />
-                  </button>
-                </div>
-              </ul>
-            </label>
-          </div>
-        ))}
+        {technicianState.showEmpty && <EmptyList handleReset={handleReset} />}
+
+        {!technicianState.showEmpty &&
+          technicianState.list_technician.map((item: Technician, i) => (
+            <div
+              key={i}
+              onClick={() => setEditTechnician(item.id_technician)}
+              className={styles.table_item}
+            >
+              <input type="checkbox" id={styles.system1} />
+              <label htmlFor={styles.system1}>
+                <ul>
+                  <li>
+                    <img
+                      src={item.technician_icon ?? motorsIcon}
+                      alt="motors icon"
+                    />
+                    <strong>{item.technician_name}</strong>
+                  </li>
+                  <li>
+                    <strong>{item.technician_code}</strong>
+                  </li>
+                  <li>
+                    <p>{item.technician_description ?? "Sin definir"}</p>
+                  </li>
+                  <li>
+                    <p>{item.technician_education ?? "Sin definir"}</p>
+                  </li>
+                  <li>
+                    <strong>{formatPrice(item.technician_salary)}</strong>
+                  </li>
+                  <div className={styles.buttons}>
+                    <button onClick={showModal} className={styles.btn_edit}>
+                      <img src={editIcon} alt="edit icon" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        showDelete();
+                        setEditTechnician(item.id_technician);
+                      }}
+                    >
+                      <img src={deleteIcon} alt="delete icon" />
+                    </button>
+                  </div>
+                </ul>
+              </label>
+            </div>
+          ))}
       </div>
 
-      {data && data?.last_page > 1 && (
-        <Pagination last_page={data?.last_page ?? 0} />
+      {technicianState.last_page > 1 && (
+        <Pagination last_page={technicianState.last_page ?? 0} />
       )}
 
       {modalVisible && (

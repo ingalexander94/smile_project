@@ -11,6 +11,7 @@ export interface TemporaryState {
   teamSave: Team | null;
   totalPagesOperations: number;
   systems: SystemFilter[];
+  showEmpty: boolean;
 }
 
 export interface Team {

@@ -13,6 +13,7 @@ const INITIAL_STATE: TemporaryState = {
   teams: [],
   operations: [],
   systems: [],
+  showEmpty: false,
   orderBy: "ASC",
   search: "",
   teamActive: null,
@@ -88,6 +89,10 @@ export const TemporaryProvider = ({ children }: Props) => {
     dispatch({ type: "activeAllSystem", payload: active });
   };
 
+  const setShowEmpty = (isEmpty: boolean) => {
+    dispatch({ type: "setShowEmpty", payload: isEmpty });
+  };
+
   return (
     <TemporaryContext.Provider
       value={{
@@ -106,6 +111,7 @@ export const TemporaryProvider = ({ children }: Props) => {
         setSystems,
         activeSystem,
         activeAllSystem,
+        setShowEmpty
       }}
     >
       {children}

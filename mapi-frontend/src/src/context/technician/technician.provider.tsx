@@ -1,6 +1,9 @@
 import { useReducer } from "react";
 import { TechnicianContext } from "./technician.context";
-import { Technician, TechnicianState } from "src/interfaces/technician.interface";
+import {
+  Technician,
+  TechnicianState,
+} from "src/interfaces/technician.interface";
 import { technicianReducer } from "./technician.reducer";
 
 const INITIAL_STATE: TechnicianState = {
@@ -14,8 +17,10 @@ const INITIAL_STATE: TechnicianState = {
     technician_salary: "",
     technician_icon: "",
   },
+  showEmpty: false,
   search: "",
   totalPages: 0,
+  last_page: 0
 };
 
 interface Props {
@@ -23,7 +28,10 @@ interface Props {
 }
 
 export const TechnicianProvider = ({ children }: Props) => {
-  const [technicianState, dispatch] = useReducer(technicianReducer, INITIAL_STATE);
+  const [technicianState, dispatch] = useReducer(
+    technicianReducer,
+    INITIAL_STATE
+  );
 
   const setTechnicians = (list_technician: Technician[]) => {
     dispatch({ type: "setTechnicians", payload: list_technician });
@@ -37,6 +45,14 @@ export const TechnicianProvider = ({ children }: Props) => {
     dispatch({ type: "setTechnicians", payload: technician });
   };
 
+  const setShowEmpty = (showEmpty: boolean) => {
+    dispatch({ type: "setShowEmpty", payload: showEmpty });
+  };
+
+  const setLastPage = (last_page: number) => {
+    dispatch({ type: "setLastPage", payload: last_page });
+  };
+
   return (
     <TechnicianContext.Provider
       value={{
@@ -44,6 +60,8 @@ export const TechnicianProvider = ({ children }: Props) => {
         setTechnicians,
         setSearch,
         setCreateTechnician,
+        setShowEmpty,
+        setLastPage
       }}
     >
       {children}

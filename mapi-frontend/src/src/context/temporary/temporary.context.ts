@@ -24,6 +24,7 @@ export type TemporaryContextProps = {
   setSearch: (code: string) => void;
   activeSystem: (id_system: number) => void;
   activeAllSystem: (active: boolean) => void;
+  setShowEmpty: (isEmpty: boolean) => void;
 };
 
 export const TemporaryContext = createContext<TemporaryContextProps>(

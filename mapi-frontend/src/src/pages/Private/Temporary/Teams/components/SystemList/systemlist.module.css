@@ -75,15 +75,15 @@ section.list_system div.system_actions div.list_components ul {
   scroll-padding-left: 20px;
 }
 
-section.list_system div.system_actions div.list_components button:hover {
+section.list_system div.system_actions div.list_components_buttons button:hover {
   background: inherit;
 }
 
-section.list_system div.system_actions div.list_components button:active {
+section.list_system div.system_actions div.list_components_buttons button:active {
   transform: scale(0.8);
 }
 
-section.list_system div.system_actions div.list_components button {
+section.list_system div.system_actions div.list_components_buttons button {
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -91,7 +91,7 @@ section.list_system div.system_actions div.list_components button {
   box-shadow: 0px 0px 20px 0px rgba(137, 147, 158, 0.2);
 }
 
-section.list_system div.system_actions div.list_components button img {
+section.list_system div.system_actions div.list_components_buttons button img {
   width: 14px;
   height: 14px;
   object-fit: contain;
@@ -99,7 +99,7 @@ section.list_system div.system_actions div.list_components button img {
 
 section.list_system
   div.system_actions
-  div.list_components
+  div.list_components_buttons
   button:nth-child(1)
   img {
   transform: rotate(90deg);
@@ -107,7 +107,7 @@ section.list_system
 
 section.list_system
   div.system_actions
-  div.list_components
+  div.list_components_buttons
   button:nth-child(3)
   img {
   transform: rotate(-90deg);
@@ -151,20 +151,8 @@ section.list_system div.system_actions > button {
   text-wrap: nowrap;
 }
 
-section.list_system > div button:hover {
-  background: inherit;
-}
-
 section.list_system > div button:active {
   transform: scale(0.8);
-}
-
-section.list_system > div button {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--white-color);
-  box-shadow: 0px 0px 20px 0px rgba(137, 147, 158, 0.2);
 }
 
 section.list_system > div button img {

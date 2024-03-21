@@ -35,6 +35,7 @@ const SistemListSearch = () => {
     setTotalPagesOperation,
     setOrderBy,
     setSearch,
+    setShowEmpty,
   } = useContext(TemporaryContext);
 
   const debouncedValidate = useRef(
@@ -49,7 +50,10 @@ const SistemListSearch = () => {
   }, [page, temporaryState.orderBy]);
 
   useEffect(() => {
-    if (temporaryState.search.length) {
+    if (temporaryState.showEmpty) {
+      setCode("");
+      findOperationSearch();
+    } else if (temporaryState.search.length) {
       findOperationSearch();
     } else {
       const queryParams = new URLSearchParams(location.search);
@@ -67,7 +71,12 @@ const SistemListSearch = () => {
     if (res) {
       const response = res.data;
       setTotalPagesOperation(response.data.totalPages);
-      setOperations(response.data.operations);
+      if (response.data.operations.length) {
+        setOperations(response.data.operations);
+        setShowEmpty(false);
+      } else {
+        setShowEmpty(true);
+      }
     }
     toggleCheking();
   };
@@ -128,9 +137,7 @@ const SistemListSearch = () => {
           <div className={styles.system_actions}>
             <div className={styles.input_search}>
               <p>Matriz de operaciones</p>
-            </div>
-            <div className={styles.list_actions}>
-              <div className={styles.input_order}>
+              <div className={styles.input_order} title="Ordenar por">
                 <img src={filterBlackIcon} alt="Filter icon" />
                 <select
                   name="orderBy"
@@ -142,6 +149,8 @@ const SistemListSearch = () => {
                   <option value="DESC">Descendente</option>
                 </select>
               </div>
+            </div>
+            <div className={styles.list_actions}>
               <button className="btn_black" onClick={showModal}>
                 <img src={plusIcon} alt="Plus icon" /> Agregar operación
               </button>

@@ -3,6 +3,8 @@ export interface TechnicianState {
     technician: Technician;
     search: string;
     totalPages: number;
+    showEmpty: boolean;
+    last_page: number;
 }
 
 export interface TechnicianResponse {

@@ -2,6 +2,33 @@ section.list_system {
   padding: 32px;
 }
 
+section.list_system > aside {
+  display: none;
+  width: 100%;
+  flex-direction: column;
+  row-gap: 26px;
+  text-align: center;
+  width: 480px;
+  height: 480px;
+  margin: 120px auto;
+  background-image: url("../../../../../../assets/ilustration.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  align-items: center;
+  justify-content: center;
+}
+
+section.list_system > aside button {
+  width: 210px;
+  height: 40px;
+  border-radius: 5px;
+}
+
+section.list_system > aside:only-child {
+  display: flex;
+}
+
 section.list_system div.system_actions,
 section.list_system div.system_actions div.list_actions {
   display: flex;
@@ -103,5 +130,11 @@ section.list_system div.input_search input {
     input:focus
     ~ button:not(.search_icon) {
     display: none;
+  }
+
+  section.list_system > aside {
+    height: 300px;
+    margin-bottom: 0;
+    margin-top: 100px;
   }
 }

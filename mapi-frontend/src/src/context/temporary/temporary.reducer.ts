@@ -23,7 +23,8 @@ type TemporaryAction =
   | { type: "setSearch"; payload: string }
   | { type: "setComponentActive"; payload: Component }
   | { type: "activeSystem"; payload: number }
-  | { type: "activeAllSystem"; payload: boolean };
+  | { type: "activeAllSystem"; payload: boolean }
+  | { type: "setShowEmpty"; payload: boolean };
 
 export const temporaryReducer = (
   state: TemporaryState,
@@ -110,6 +111,11 @@ export const temporaryReducer = (
           ...system,
           isActive: action.payload,
         })),
+      };
+    case "setShowEmpty":
+      return {
+        ...state,
+        showEmpty: action.payload
       };
     default:
       return state;

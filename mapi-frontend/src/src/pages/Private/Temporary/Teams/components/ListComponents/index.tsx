@@ -13,10 +13,12 @@ const ListComponents = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [brands, setBrands] = useState<Brand[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const getBrandsAndModels = async () => {
       if (temporaryState.teamActive) {
+        setLoading(true);
         const res = await callEndpoint(
           BrandService.getByTeam(temporaryState.teamActive?.id_team)
         );
@@ -29,6 +31,7 @@ const ListComponents = () => {
             }
           }
         }
+        setLoading(false);
       }
     };
 
@@ -50,18 +53,20 @@ const ListComponents = () => {
         </div>
       )}
       <ul className={styles.components}>
-        <section>
-          <h3>¡Aún no tienes modelos OEM agregados!</h3>
-          <p>
-            Es hora de agregar tus modelos de equipos originales de fabrica
-            <strong> (OEM) </strong> para aprovechar al máximo todas las
-            funcionalidades que ofrecemos
-          </p>
-          <button className="btn_black">
-            <img src={plusIcon} alt="Plus icon" />
-            Agregar modelo
-          </button>
-        </section>
+        {!loading && (
+          <section>
+            <h3>¡Aún no tienes modelos OEM agregados!</h3>
+            <p>
+              Es hora de agregar tus modelos de equipos originales de fabrica
+              <strong> (OEM) </strong> para aprovechar al máximo todas las
+              funcionalidades que ofrecemos
+            </p>
+            <button className="btn_black">
+              <img src={plusIcon} alt="Plus icon" />
+              Agregar modelo
+            </button>
+          </section>
+        )}
         {brands.map((brand, index) => (
           <div
             className={`animate__animated animate__fadeIn animate__faster ${styles.brand_item}`}

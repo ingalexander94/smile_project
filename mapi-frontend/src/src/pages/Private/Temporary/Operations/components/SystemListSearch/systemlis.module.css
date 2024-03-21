@@ -2,7 +2,7 @@ section.list_system {
   padding: 14px;
 }
 
-section.list_system aside {
+section.list_system > aside {
   display: none;
   width: 100%;
   flex-direction: column;
@@ -19,13 +19,13 @@ section.list_system aside {
   justify-content: center;
 }
 
-section.list_system aside button {
+section.list_system > aside button {
   width: 210px;
   height: 40px;
   border-radius: 5px;
 }
 
-section.list_system aside:only-child {
+section.list_system > aside:only-child {
   display: flex;
 }
 
@@ -37,7 +37,7 @@ section.list_system div.system_actions div.list_actions {
   column-gap: 8px;
 }
 
-section.list_system div.system_actions div.list_actions .input_order {
+section.list_system div.system_actions .input_order {
   height: 30px;
   padding: 0 10px;
   border-radius: 5px;
@@ -53,14 +53,13 @@ section.list_system div.system_actions div.list_actions .input_order {
   column-gap: 8px;
 }
 
-section.list_system div.system_actions div.list_actions .input_order select {
+section.list_system div.system_actions .input_order select {
   border: none;
   outline: none;
 }
 
 section.list_system
   div.system_actions
-  div.list_actions
   .input_order
   select:focus {
   outline: none;
@@ -164,7 +163,7 @@ section.list_system div.input_search input {
     display: none;
   }
 
-  section.list_system aside {
+  section.list_system > aside {
     height: 300px;
     margin-bottom: 0;
     margin-top: 100px;

@@ -27,9 +27,10 @@ const SystemList = () => {
   const location = useLocation();
   const [code, setCode] = useState<string>("");
   const [components, setComponents] = useState<Component[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const { callEndpoint } = useAxios();
 
-  const { temporaryState, setComponentActive, setSearch } =
+  const { temporaryState, setComponentActive, setSearch, setShowEmpty } =
     useContext(TemporaryContext);
 
   const debouncedSearchByCode = useRef(
@@ -41,6 +42,7 @@ const SystemList = () => {
   useEffect(() => {
     const getComponents = async () => {
       if (temporaryState.teamActive) {
+        setLoading(true);
         const res = await callEndpoint(
           ComponentService.all(temporaryState.teamActive.id_team)
         );
@@ -51,6 +53,7 @@ const SystemList = () => {
             setComponentActive(data[0]);
           }
         }
+        setLoading(false);
       }
     };
 
@@ -70,6 +73,7 @@ const SystemList = () => {
     if (code.length) {
       setCode("");
       setSearch("");
+      setShowEmpty(false);
     }
   };
 
@@ -88,24 +92,28 @@ const SystemList = () => {
 
   return (
     <section className={styles.list_system}>
-      <aside className={styles.empty}>
-        <h3>¡Aún no tienes componentes agregados para este equipo!</h3>
-        <p>
-          Antes de continuar por favor agrega los componentes de este equipo. No
-          esperes más para aprovechar todas las ventajas que nuestra plataforma
-          tiene para ofrecerte.
-        </p>
-        <button className="btn_black">
-          <img src={plusIcon} alt="Plus icon" />
-          Agregar componente
-        </button>
-        <img src={mechanic} alt="Mechanic image" />
-      </aside>
+      {!loading && (
+        <aside className={styles.empty}>
+          <h3>¡Aún no tienes componentes agregados para este equipo!</h3>
+          <p>
+            Antes de continuar por favor agrega los componentes de este equipo.
+            No esperes más para aprovechar todas las ventajas que nuestra
+            plataforma tiene para ofrecerte.
+          </p>
+          <button className="btn_black">
+            <img src={plusIcon} alt="Plus icon" />
+            Agregar componente
+          </button>
+          <img src={mechanic} alt="Mechanic image" />
+        </aside>
+      )}
 
       {components.length > 0 && (
         <>
           <div className={styles.system_actions}>
-            <div className={styles.list_components}>
+            <div
+              className={`${styles.list_components} ${styles.list_components_buttons}`}
+            >
               <button onClick={() => handleMoveSlider(-100)}>
                 <img src={arrowIcon} alt="Arrow icon" />
               </button>
@@ -150,7 +158,7 @@ const SystemList = () => {
               </button>
             </div>
           </div>
-          <SystemTable />
+          <SystemTable handleReset={handleReset} />
         </>
       )}
     </section>
